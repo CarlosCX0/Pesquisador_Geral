@@ -21,7 +21,7 @@ body {
 }
 
 .barra-topo {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -126,3 +126,71 @@ body {
     transform: scale(1);
   }
 }
+
+.skeleton {
+  width: 95%;
+  height: 300px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  background: linear-gradient(90deg,
+      #e0e0e0 25%,
+      #f5f5f5 50%,
+      #e0e0e0 75%);
+
+  background-size: 200% 100%;
+
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.botao-dark {
+  margin-left: 15px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.botao-dark:hover {
+  transform: scale(1.1);
+}
+
+body.dark {
+  background-color: #121212;
+  color: white;
+}
+
+body.dark .barra-topo {
+  background-color: #1b1b1b;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .Pesquisa {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+}
+
+body.dark .Pesquisa::placeholder {
+  color: #b0b0b0;
+}
+
+body.dark .galeria-masonry-coluna img {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .zoom-overlay {
+  background-color: rgba(0, 0, 0, 0.92);
+}
+
