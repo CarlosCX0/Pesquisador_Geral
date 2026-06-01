@@ -123,48 +123,52 @@ function App() {
         </motion.div>
       </div>
 
-      <InfiniteScroll
-        dataLength={images.length}
-        next={carregarMais}
-        hasMore={images.length < 18}
-        loader={<h2></h2>}
-      >
-        <Masonry
-          breakpointCols={pontosDeQuebra}
-          className="galeria-masonry"
-          columnClassName="galeria-masonry-coluna"
-        >
-          {loading && images.length === 0
-            ? Array.from({ length: 12 }).map((_, index) => (
-              <div key={index} className="skeleton"></div>
-            ))
-            : images.map((image) => (
-              <div key={image.id} className="container-imagem-galeria">
-                <motion.img
-                  src={image.urls.small}
-                  alt={image.alt_description || "Imagem"}
-                  onClick={() => setImagemSelecionada(image.urls.regular)}
-                  style={{ cursor: 'zoom-in' }}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  whileHover={{ scale: 1.03 }}
-                />
+      <div className="area-galeria color-change-2x">
 
-                <button
-                  className="btn-download-foto"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    baixarImagem(image.urls.regular, image.id)
-                  }}
-                >
-                  <i className="bi bi-download"></i>
-                </button>
-              </div>
-            ))
-          }
-        </Masonry>
-      </InfiniteScroll>
+        <InfiniteScroll
+          dataLength={images.length}
+          next={carregarMais}
+          hasMore={images.length < 15}
+          loader={<h2></h2>}
+        >
+          <Masonry
+            breakpointCols={pontosDeQuebra}
+            className="galeria-masonry"
+            columnClassName="galeria-masonry-coluna"
+          >
+            {loading && images.length === 0
+              ? Array.from({ length: 12 }).map((_, index) => (
+                <div key={index} className="skeleton"></div>
+              ))
+              : images.map((image) => (
+                <div key={image.id} className="container-imagem-galeria">
+                  <motion.img
+                    src={image.urls.small}
+                    alt={image.alt_description || "Imagem"}
+                    onClick={() => setImagemSelecionada(image.urls.regular)}
+                    style={{ cursor: 'zoom-in' }}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    whileHover={{ scale: 1.03 }}
+                  />
+
+                  <button
+                    className="btn-download-foto"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      baixarImagem(image.urls.regular, image.id)
+                    }}
+                  >
+                    <i className="bi bi-download"></i>
+                  </button>
+                </div>
+              ))
+            }
+          </Masonry>
+        </InfiniteScroll>
+
+      </div>
 
       {imagemSelecionada && (
         <motion.div

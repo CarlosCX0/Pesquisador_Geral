@@ -8,7 +8,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  background-color: #1b1b1b;
 }
 
 .Pesquisa {
@@ -392,11 +392,36 @@ body.dark .color-change-2x {
 }
 
 @keyframes color-change-2x {
-  0% {
-  }
-  50% {
-  }
-  100% {
-  }
+  0% {}
+
+  50% {}
+
+  100% {}
 }
 
+.area-galeria {
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 155px;
+  padding-bottom: 50px;
+}
+
+.galeria-masonry {
+  display: flex;
+  margin-top: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1275px;
+  width: 95%;
+  padding: 0 20px;
+}
+
+.skeleton {
+  width: 95%;
+  height: 300px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #2a2236 25%, #3a304a 50%, #2a2236 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
