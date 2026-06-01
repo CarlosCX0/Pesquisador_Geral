@@ -47,7 +47,10 @@ function App() {
       )
 
       const data = await response.json()
-      setImages((prevImages) => [...prevImages, ...data.results])
+      setImages((prevImages) => {
+        const listaCompleta = [...prevImages, ...data.results];
+        return listaCompleta.slice(0, 20);
+      })
     } catch (error) {
       console.log(error)
     } finally {
@@ -64,6 +67,27 @@ function App() {
     1100: 3,
     700: 2
   };
+
+  async function baixarImagem(urlDaImagem: string, idDaImagem: string) {
+    try {
+      const resposta = await fetch(urlDaImagem);
+      const blob = await resposta.blob(); // Transforma a imagem em dados binários (Blob)
+      const urlBlob = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = urlBlob;
+      link.download = `unsplash-${idDaImagem}.jpg`; // Força o download com um nome padrão
+      document.body.appendChild(link);
+      link.click();
+
+      // Limpeza de memória
+      document.body.removeChild(link);
+      URL.revokeObjectURL(urlBlob);
+    } catch (error) {
+      console.error("Erro ao baixar a imagem:", error);
+      alert("Não foi possível baixar a imagem diretamente.");
+    }
+  }
 
   return (
     <div>
@@ -90,7 +114,11 @@ function App() {
           className="botao-dark"
           onClick={() => setDarkMode(!darkMode)}
         >
-          {darkMode ? '☀️' : '🌙'}
+          {darkMode ? (
+            <i className="bi bi-brightness-low-fill"></i>
+          ) : (
+            <i className="bi bi-moon-stars-fill"></i>
+          )}
         </button>
 
       </div>
@@ -98,7 +126,7 @@ function App() {
       <InfiniteScroll
         dataLength={images.length}
         next={carregarMais}
-        hasMore={page < 10}
+        hasMore={images.length < 20}
         loader={<h2></h2>}
       >
 
@@ -113,25 +141,32 @@ function App() {
               <div key={index} className="skeleton"></div>
             ))
             : images.map((image) => (
-              <motion.img
-                key={image.id}
-                src={image.urls.small}
-                alt={image.alt_description || "Imagem"}
-                onClick={() => {
-                  setImagemSelecionada(image.urls.regular);
-                }}
-                style={{ cursor: 'zoom-in' }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+              <div key={image.id} className="container-imagem-galeria">
+                <motion.img
+                  src={image.urls.small}
+                  alt={image.alt_description || "Imagem"}
+                  onClick={() => {
+                    setImagemSelecionada(image.urls.regular);
+                  }}
+                  style={{ cursor: 'zoom-in' }}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.03 }}
+                />
 
-                transition={{
-                  duration: 0.5
-                }}
-
-                whileHover={{
-                  scale: 1.03
-                }}
-              />
+                {/* Botão de Download do Bootstrap */}
+                <button
+                  className="btn-download-foto"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Evita que clique no botão abra o zoom da imagem
+                    baixarImagem(image.urls.regular, image.id);
+                  }}
+                  title="Baixar Imagem"
+                >
+                  <i className="bi bi-download"></i>
+                </button>
+              </div>
             ))
           }
         </Masonry>
