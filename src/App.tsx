@@ -11,7 +11,7 @@ function App() {
   const [images, setImages] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,7 +25,7 @@ function App() {
     if (search !== '') {
       buscarImagens()
     }
-  }, [page, search]) 
+  }, [page, search])
 
   async function buscarImagens() {
     setLoading(true)
@@ -52,7 +52,7 @@ function App() {
       const resposta = await fetch(urlDaImagem)
       const blob = await resposta.blob()
       const urlBlob = URL.createObjectURL(blob)
-      
+
       const link = document.createElement('a')
       link.href = urlBlob;
       link.download = `unsplash-${idDaImagem}.jpg`
@@ -70,9 +70,9 @@ function App() {
   }
 
   function lidarComCategoria(categoria: string) {
-    setImages([]) 
-    setPage(1)   
-    setSearch(categoria === 'Todos' ? 'popular' : categoria) 
+    setImages([])
+    setPage(1)
+    setSearch(categoria === 'Todos' ? 'popular' : categoria)
   }
 
   const pontosDeQuebra = {
@@ -99,7 +99,7 @@ function App() {
               if (e.key === 'Enter') {
                 setImages([])
                 setPage(1)
-                buscarImagens() 
+                buscarImagens()
               }
             }}
           />
@@ -121,7 +121,7 @@ function App() {
       <InfiniteScroll
         dataLength={images.length}
         next={carregarMais}
-        hasMore={images.length < 15} 
+        hasMore={images.length < 15}
         loader={<h2></h2>}
       >
         <Masonry
@@ -145,11 +145,11 @@ function App() {
                   transition={{ duration: 0.5 }}
                   whileHover={{ scale: 1.03 }}
                 />
-                
-                <button 
+
+                <button
                   className="btn-download-foto"
                   onClick={(e) => {
-                    e.stopPropagation() 
+                    e.stopPropagation()
                     baixarImagem(image.urls.regular, image.id)
                   }}
                 >
@@ -162,7 +162,7 @@ function App() {
       </InfiniteScroll>
 
       {imagemSelecionada && (
-        <motion.div 
+        <motion.div
           className="zoom-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
