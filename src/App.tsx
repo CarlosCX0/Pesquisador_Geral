@@ -38,7 +38,7 @@ function App() {
 
       setImages((prevImages) => {
         const listaCompleta = [...prevImages, ...data.results]
-        return listaCompleta.slice(0, 15)
+        return listaCompleta.slice(0, 18)
       })
     } catch (error) {
       console.log(error)
@@ -126,7 +126,7 @@ function App() {
       <InfiniteScroll
         dataLength={images.length}
         next={carregarMais}
-        hasMore={images.length < 15}
+        hasMore={images.length < 18}
         loader={<h2></h2>}
       >
         <Masonry
