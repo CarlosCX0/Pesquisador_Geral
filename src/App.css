@@ -27,13 +27,15 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  height: 75px;
+  height: auto;
+  padding: 15px 0;
   background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   z-index: 1000;
+  transition: background-color 0.3s ease;
 }
 
 .Pesquisa:focus {
@@ -42,7 +44,7 @@ body {
 
 .galeria-masonry {
   display: flex;
-  margin-top: 105px;
+  margin-top: 160px;
   margin-left: auto;
   margin-right: auto;
   max-width: 1275px;
@@ -156,15 +158,15 @@ body {
 }
 
 .botao-dark {
-  top: 20px;
-  right: 25px;
   position: fixed;
+  top: 22px;
+  right: 25px;
   border: none;
   background: transparent;
   font-size: 24px;
   cursor: pointer;
   transition: transform 0.2s ease;
-  z-index: 1001;
+  z-index: 1002;
 }
 
 .botao-dark:hover {
@@ -257,4 +259,98 @@ body.dark .btn-download-foto {
 body.dark .btn-download-foto:hover {
   background-color: #3a3a3a;
   color: #0d6efd;
+}
+
+.conteudo-topo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.container-categorias {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 90%;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 5px;
+}
+
+.container-categorias::-webkit-scrollbar {
+  display: none;
+}
+
+.btn-categoria {
+  background-color: #f1f3f5;
+  color: #495057;
+  border: none;
+  padding: 6px 16px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-categoria.active {
+  background-color: #212529;
+  color: #ffffff;
+}
+
+.container-imagem-galeria {
+  position: relative;
+  width: 95%;
+  margin-bottom: 20px;
+}
+
+.container-imagem-galeria img {
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+.btn-download-foto {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.container-imagem-galeria:hover .btn-download-foto {
+  opacity: 1;
+}
+
+.btn-download-foto:hover {
+  transform: scale(1.1);
+  color: #0d6efd;
+}
+
+body.dark .btn-categoria {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+body.dark .btn-categoria.active {
+  background-color: #fff;
+  color: #121212;
+}
+
+body.dark .btn-download-foto {
+  background-color: rgba(42, 42, 42, 0.9);
+  color: #fff;
 }
