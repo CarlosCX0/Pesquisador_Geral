@@ -361,10 +361,13 @@ body.dark .btn-download-foto {
 
 @keyframes color-change-claro-azul {
   0% {
+    background-color: #ffffff; 
   }
   50% {
+    background-color: #f4f8fa; 
   }
   100% {
+    background-color: #e6f2f7; 
   }
 }
 
@@ -395,10 +398,13 @@ body.dark .color-change-2x {
 
 @keyframes color-change-escuro-lilas {
   0% {
+    background-color: #1b1b1b; 
   }
   50% {
+    background-color: #231e2b;
   }
   100% {
+    background-color: #2b2236; 
   }
 }
 
