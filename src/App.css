@@ -356,47 +356,71 @@ body.dark .btn-download-foto {
 }
 
 .color-change-2x {
-  animation: color-change-2x 8s linear infinite alternate both;
+  animation: color-change-claro-azul 8s linear infinite alternate both;
 }
 
-@keyframes color-change-2x {
+@keyframes color-change-claro-azul {
   0% {
-    background-color: #f4f0fa;
   }
-
+  50% {
+  }
   100% {
-    background-color: #e8def8;
   }
+}
+
+.barra-topo .Pesquisa {
+  background-color: #ffffff;
+  color: #121212;
+  border: 1px solid #ddd;
+}
+.barra-topo .Pesquisa::placeholder {
+  color: #757575;
+}
+.barra-topo .btn-categoria {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+.barra-topo .btn-categoria:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+.barra-topo .btn-categoria.active {
+  background-color: #212529;
+  color: #ffffff;
 }
 
 body.dark .color-change-2x {
-  animation: color-change-dark-2x 8s linear infinite alternate both;
+  animation: color-change-escuro-lilas 8s linear infinite alternate both;
 }
 
-@keyframes color-change-dark-2x {
+@keyframes color-change-escuro-lilas {
   0% {
-    background-color: #1b1b1b;
   }
-
   50% {
-    background-color: #231e2b;
   }
-
   100% {
-    background-color: #2b2236;
   }
 }
 
-.color-change-2x {
-  animation: color-change-2x 8s linear infinite alternate both;
+body.dark .barra-topo .Pesquisa {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
 }
-
-@keyframes color-change-2x {
-  0% {}
-
-  50% {}
-
-  100% {}
+body.dark .barra-topo .Pesquisa::placeholder {
+  color: #b0b0b0;
+}
+body.dark .barra-topo .btn-categoria {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+body.dark .barra-topo .btn-categoria:hover {
+  background-color: #3a3a3a;
+  color: #ffffff;
+}
+body.dark .barra-topo .btn-categoria.active {
+  background-color: #ffffff;
+  color: #121212;
 }
 
 .area-galeria {
