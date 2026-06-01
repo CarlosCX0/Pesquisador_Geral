@@ -87,8 +87,13 @@ function App() {
         {darkMode ? <i className="bi bi-brightness-low-fill"></i> : <i className="bi bi-moon-stars-fill"></i>}
       </button>
 
-      <div className='barra-topo'>
-        <div className="conteudo-topo">
+      <div className='barra-topo color-change-2x'>
+        <motion.div
+          className="conteudo-topo"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <input
             type="text"
             className='Pesquisa'
@@ -115,7 +120,7 @@ function App() {
               </button>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <InfiniteScroll
