@@ -6,6 +6,25 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 
 const CATEGORIAS_RAPIDAS = ['Todos', 'Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades', 'Favoritos'];
 
+const OPCOES_ORIENTACAO = [
+  { label: 'Todas Orientações', value: '' },
+  { label: 'Paisagem (Horizontal)', value: 'landscape' },
+  { label: 'Retrato (Vertical)', value: 'portrait' },
+  { label: 'Quadrada', value: 'squarish' }
+];
+
+const OPCOES_COR = [
+  { label: 'Todas as Cores', value: '' },
+  { label: 'Preto e Branco', value: 'black_and_white' },
+  { label: 'Preto', value: 'black' },
+  { label: 'Branco', value: 'white' },
+  { label: 'Amarelo', value: 'yellow' },
+  { label: 'Azul', value: 'blue' },
+  { label: 'Verde', value: 'green' },
+  { label: 'Roxo', value: 'purple' },
+  { label: 'Magenta', value: 'magenta' }
+];
+
 function App() {
   const [search, setSearch] = useState('')
   const [images, setImages] = useState<any[]>([])
@@ -13,8 +32,10 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null)
-  
   const [notificacao, setNotificacao] = useState<string | null>(null)
+
+  const [orientacion, setOrientacion] = useState('')
+  const [color, setColor] = useState('')
 
   const [favoritos, setFavoritos] = useState<any[]>(() => {
     const salvos = localStorage.getItem('galeria_favoritos');
@@ -39,40 +60,49 @@ function App() {
     }
   }, [page])
 
+  useEffect(() => {
+    if (search && search !== 'Favoritos') {
+      setImages([]);
+      setPage(1);
+      buscarImagens(search, true);
+    }
+  }, [orientacion, color])
+
   function mostrarNotificacao(mensagem: string) {
     setNotificacao(mensagem);
   }
 
   useEffect(() => {
     if (!notificacao) return;
-    
     const timer = setTimeout(() => {
       setNotificacao(null);
     }, 2500);
-
     return () => clearTimeout(timer);
   }, [notificacao]);
 
   function executarNovaBusca() {
     if (!search.trim()) return;
-
     setImages([]);
     setPage(1);
-    buscarImagens(search);
+    buscarImagens(search, true);
   }
 
-  async function buscarImagens(termoSubstituto?: string) {
+  async function buscarImagens(termoSubstituto?: string, resetarLista = false) {
     const termoAtual = termoSubstituto || search;
     if (!termoAtual.trim() || termoAtual === 'Favoritos') return;
 
     setLoading(true);
     try {
       const apiKEY = import.meta.env.VITE_PUBLIC_KEY;
-      const paginaAlvo = images.length === 0 ? 1 : page;
 
-      const response = await fetch(
-        `https://api.unsplash.com/search/photos?query=${termoAtual}&per_page=12&page=${paginaAlvo}&client_id=${apiKEY}`
-      );
+      const paginaAlvo = resetarLista ? 1 : (images.length === 0 ? 1 : page);
+
+      let url = `https://api.unsplash.com/search/photos?query=${termoAtual}&per_page=12&page=${paginaAlvo}&client_id=${apiKEY}`;
+
+      if (orientacion) url += `&orientation=${orientacion}`;
+      if (color) url += `&color=${color}`;
+
+      const response = await fetch(url);
       const data = await response.json();
 
       setImages((prevImages) => {
@@ -99,13 +129,12 @@ function App() {
       const termo = categoria === 'Todos' ? 'popular' : categoria;
       setSearch(termo);
       setImages([]);
-      buscarImagens(termo);
+      buscarImagens(termo, true);
     }
   }
 
   function alternarFavorito(image: any) {
     const jaE_Favorito = favoritos.some((fav) => fav.id === image.id);
-
     if (jaE_Favorito) {
       setFavoritos(favoritos.filter((fav) => fav.id !== image.id));
       mostrarNotificacao("Imagem removida dos salvos!");
@@ -169,19 +198,45 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <input
-            type="text"
-            className='Pesquisa'
-            placeholder='Pesquisar imagens... Enter'
-            value={search === 'Favoritos' ? '' : search} 
-            disabled={search === 'Favoritos'} 
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                executarNovaBusca();
-              }
-            }}
-          />
+          <div className="container-pesquisa-filtros">
+            <input
+              type="text"
+              className='Pesquisa'
+              placeholder='Pesquisar imagens... Enter'
+              value={search === 'Favoritos' ? '' : search}
+              disabled={search === 'Favoritos'}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  executarNovaBusca();
+                }
+              }}
+            />
+
+            {search !== 'Favoritos' && (
+              <div className="filtros-dropdown">
+                <select
+                  className="select-filtro"
+                  value={orientacion}
+                  onChange={(e) => setOrientacion(e.target.value)}
+                >
+                  {OPCOES_ORIENTACAO.map(op => (
+                    <option key={op.value} value={op.value}>{op.label}</option>
+                  ))}
+                </select>
+
+                <select
+                  className="select-filtro"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                >
+                  {OPCOES_COR.map(op => (
+                    <option key={op.value} value={op.value}>{op.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
 
           <div className="container-categorias">
             {CATEGORIAS_RAPIDAS.map((cat) => (
@@ -237,7 +292,7 @@ function App() {
                     <button
                       className={`btn-favorito-foto ${eFavorito ? 'favoritado' : ''}`}
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         alternarFavorito(image);
                       }}
                       title={eFavorito ? "Remover dos Salvos" : "Adicionar aos Salvos"}
@@ -267,13 +322,13 @@ function App() {
               <h3>
                 {search === 'Favoritos'
                   ? 'A sua lista de favoritos está vazia'
-                  : 'Digite um termo e pressione Enter para buscar'
+                  : 'Nenhuma imagem encontrada para os filtros aplicados.'
                 }
               </h3>
               <p>
                 {search === 'Favoritos'
                   ? 'Clique no ícone de coração em qualquer imagem para guardá-la aqui.'
-                  : 'Exemplo: Natureza, Arquitetura, Animais...'
+                  : 'Tente mudar o termo de busca ou limpar os filtros de cor e orientação.'
                 }
               </p>
             </div>
