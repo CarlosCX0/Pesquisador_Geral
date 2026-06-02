@@ -1,7 +1,7 @@
 import './App.css'
 import { useState, useEffect } from 'react'
 import Masonry from 'react-masonry-css'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 const CATEGORIAS_RAPIDAS = ['Todos', 'Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades', 'Favoritos'];
@@ -13,6 +13,8 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null)
+  
+  const [notificacao, setNotificacao] = useState<string | null>(null)
 
   const [favoritos, setFavoritos] = useState<any[]>(() => {
     const salvos = localStorage.getItem('galeria_favoritos');
@@ -36,6 +38,20 @@ function App() {
       buscarImagens();
     }
   }, [page])
+
+  function mostrarNotificacao(mensagem: string) {
+    setNotificacao(mensagem);
+  }
+
+  useEffect(() => {
+    if (!notificacao) return;
+    
+    const timer = setTimeout(() => {
+      setNotificacao(null);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [notificacao]);
 
   function executarNovaBusca() {
     if (!search.trim()) return;
@@ -67,6 +83,7 @@ function App() {
       });
     } catch (error) {
       console.error("Erro ao buscar imagens:", error);
+      mostrarNotificacao("Erro ao buscar imagens da API.");
     } finally {
       setLoading(false);
     }
@@ -91,8 +108,10 @@ function App() {
 
     if (jaE_Favorito) {
       setFavoritos(favoritos.filter((fav) => fav.id !== image.id));
+      mostrarNotificacao("Imagem removida dos salvos!");
     } else {
       setFavoritos([...favoritos, image]);
+      mostrarNotificacao("Imagem salva nos favoritos!");
     }
   }
 
@@ -102,6 +121,7 @@ function App() {
 
   async function baixarImagem(urlDaImagem: string, idDaImagem: string) {
     try {
+      mostrarNotificacao("Iniciando download da imagem...");
       const resposta = await fetch(urlDaImagem)
       const blob = await resposta.blob()
       const urlBlob = URL.createObjectURL(blob)
@@ -113,8 +133,10 @@ function App() {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(urlBlob)
+      mostrarNotificacao("Download concluído com sucesso!");
     } catch (error) {
       console.error("Erro ao baixar:", error)
+      mostrarNotificacao("Não foi possível baixar a imagem.");
     }
   }
 
@@ -285,6 +307,21 @@ function App() {
           <img src={imagemSelecionada} alt="Imagem em Zoom" className="zoom-imagem" />
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {notificacao && (
+          <motion.div
+            className="toast-notificacao"
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            <i className="bi bi-info-circle-fill" style={{ fontSize: '16px' }}></i>
+            <span>{notificacao}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
