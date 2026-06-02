@@ -75,6 +75,7 @@ function App() {
     localStorage.setItem('galeria_filtro_cor', color);
   }, [orientacion, color]);
 
+  // Efeito modificado: Monitora se o usuário apagou o texto da pesquisa por completo
   useEffect(() => {
     if (search === '') {
       setSearch('popular');
@@ -132,8 +133,7 @@ function App() {
       const apiKEY = import.meta.env.VITE_PUBLIC_KEY;
       const paginaAlvo = resetarLista ? 1 : (images.length === 0 ? 1 : page);
 
-      // ALTERADO: Troca de &per_page=12 para &per_page=25 na URL da requisição
-      let url = `https://api.unsplash.com/search/photos?query=${termoAtual}&per_page=25&page=${paginaAlvo}&client_id=${apiKEY}`;
+      let url = `https://api.unsplash.com/search/photos?query=${termoAtual}&per_page=12&page=${paginaAlvo}&client_id=${apiKEY}`;
       
       if (orientacion) url += `&orientation=${orientacion}`;
       if (color) url += `&color=${color}`;
@@ -300,7 +300,7 @@ function App() {
             columnClassName="galeria-masonry-coluna"
           >
             {loading && listaDeImagensExibida.length === 0
-              ? Array.from({ length: 25 }).map((_, index) => ( // Ajustado aqui também para gerar 25 skeletons enquanto carrega
+              ? Array.from({ length: 12 }).map((_, index) => (
                 <div key={index} className="skeleton"></div>
               ))
               : listaDeImagensExibida.map((image) => {
@@ -380,7 +380,7 @@ function App() {
                 Carregando...
               </>
             ) : (
-              'Carregar mais imagens'
+              'Carregar mais Imagens'
             )}
           </button>
         </div>
