@@ -116,7 +116,7 @@ function App() {
     return () => clearTimeout(timer);
   }, [notificacao]);
 
-  function ejecutarNovaBusca() {
+  function executarNovaBusca() {
     if (!search.trim()) return;
     setImages([]);
     setPage(1);
