@@ -4,7 +4,7 @@ import Masonry from 'react-masonry-css'
 import { motion, AnimatePresence } from 'framer-motion'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-const CATEGORIAS_RAPIDAS = ['Todos', 'Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades', 'Favoritos'];
+const CATEGORIAS_RAPIDAS = ['Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades', 'Favoritos'];
 
 const OPCOES_ORIENTACAO = [
   { label: 'Todas Orientações', value: '' },
@@ -26,16 +26,27 @@ const OPCOES_COR = [
 ];
 
 function App() {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(() => {
+    return localStorage.getItem('galeria_ultima_busca') || 'popular';
+  });
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const salvo = localStorage.getItem('galeria_dark_mode');
+    return salvo ? JSON.parse(salvo) : true;
+  });
+
+  const [orientacion, setOrientacion] = useState(() => {
+    return localStorage.getItem('galeria_filtro_orientacao') || '';
+  });
+  const [color, setColor] = useState(() => {
+    return localStorage.getItem('galeria_filtro_cor') || '';
+  });
+
   const [images, setImages] = useState<any[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null)
   const [notificacao, setNotificacao] = useState<string | null>(null)
-
-  const [orientacion, setOrientacion] = useState('')
-  const [color, setColor] = useState('')
 
   const [favoritos, setFavoritos] = useState<any[]>(() => {
     const salvos = localStorage.getItem('galeria_favoritos');
@@ -43,6 +54,7 @@ function App() {
   });
 
   useEffect(() => {
+    localStorage.setItem('galeria_dark_mode', JSON.stringify(darkMode));
     if (darkMode) {
       document.body.classList.add('dark')
     } else {
@@ -53,6 +65,31 @@ function App() {
   useEffect(() => {
     localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
   }, [favoritos]);
+
+  useEffect(() => {
+    localStorage.setItem('galeria_ultima_busca', search);
+  }, [search]);
+
+  useEffect(() => {
+    localStorage.setItem('galeria_filtro_orientacao', orientacion);
+    localStorage.setItem('galeria_filtro_cor', color);
+  }, [orientacion, color]);
+
+  // Efeito modificado: Monitora se o usuário apagou o texto da pesquisa por completo
+  useEffect(() => {
+    if (search === '') {
+      setSearch('popular');
+      setImages([]);
+      setPage(1);
+      buscarImagens('popular', true);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    if (search !== 'Favoritos') {
+      buscarImagens(search, true);
+    }
+  }, []);
 
   useEffect(() => {
     if (page > 1 && search !== 'Favoritos') {
@@ -94,11 +131,10 @@ function App() {
     setLoading(true);
     try {
       const apiKEY = import.meta.env.VITE_PUBLIC_KEY;
-
       const paginaAlvo = resetarLista ? 1 : (images.length === 0 ? 1 : page);
 
       let url = `https://api.unsplash.com/search/photos?query=${termoAtual}&per_page=12&page=${paginaAlvo}&client_id=${apiKEY}`;
-
+      
       if (orientacion) url += `&orientation=${orientacion}`;
       if (color) url += `&color=${color}`;
 
@@ -126,10 +162,9 @@ function App() {
     if (categoria === 'Favoritos') {
       setImages([]);
     } else {
-      const termo = categoria === 'Todos' ? 'popular' : categoria;
-      setSearch(termo);
+      setSearch(categoria);
       setImages([]);
-      buscarImagens(termo, true);
+      buscarImagens(categoria, true);
     }
   }
 
@@ -203,8 +238,8 @@ function App() {
               type="text"
               className='Pesquisa'
               placeholder='Pesquisar imagens... Enter'
-              value={search === 'Favoritos' ? '' : search}
-              disabled={search === 'Favoritos'}
+              value={search === 'Favoritos' ? '' : (search === 'popular' ? '' : search)} 
+              disabled={search === 'Favoritos'} 
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -215,9 +250,9 @@ function App() {
 
             {search !== 'Favoritos' && (
               <div className="filtros-dropdown">
-                <select
-                  className="select-filtro"
-                  value={orientacion}
+                <select 
+                  className="select-filtro" 
+                  value={orientacion} 
                   onChange={(e) => setOrientacion(e.target.value)}
                 >
                   {OPCOES_ORIENTACAO.map(op => (
@@ -225,9 +260,9 @@ function App() {
                   ))}
                 </select>
 
-                <select
-                  className="select-filtro"
-                  value={color}
+                <select 
+                  className="select-filtro" 
+                  value={color} 
                   onChange={(e) => setColor(e.target.value)}
                 >
                   {OPCOES_COR.map(op => (
@@ -242,7 +277,7 @@ function App() {
             {CATEGORIAS_RAPIDAS.map((cat) => (
               <button
                 key={cat}
-                className={`btn-categoria ${search === cat || (cat === 'Todos' && search === 'popular') ? 'active' : ''}`}
+                className={`btn-categoria ${search === cat ? 'active' : ''}`}
                 onClick={() => lidarComCategoria(cat)}
               >
                 {cat === 'Favoritos' ? <>Salvos</> : cat}
@@ -292,7 +327,7 @@ function App() {
                     <button
                       className={`btn-favorito-foto ${eFavorito ? 'favoritado' : ''}`}
                       onClick={(e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); 
                         alternarFavorito(image);
                       }}
                       title={eFavorito ? "Remover dos Salvos" : "Adicionar aos Salvos"}
@@ -345,7 +380,7 @@ function App() {
                 Carregando...
               </>
             ) : (
-              'Carregar mais imagens'
+              'Carregar mais Imagens'
             )}
           </button>
         </div>
