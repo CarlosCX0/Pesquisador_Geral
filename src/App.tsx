@@ -4,7 +4,7 @@ import Masonry from 'react-masonry-css'
 import { motion } from 'framer-motion'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
-const CATEGORIAS_RAPIDAS = ['Todos', 'Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades'];
+const CATEGORIAS_RAPIDAS = ['Todos', 'Natureza', 'Tecnologia', 'Arquitetura', 'Minimalismo', 'Cidades', 'Favoritos'];
 
 function App() {
   const [search, setSearch] = useState('')
@@ -13,6 +13,11 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
   const [imagemSelecionada, setImagemSelecionada] = useState<string | null>(null)
+
+  const [favoritos, setFavoritos] = useState<any[]>(() => {
+    const salvos = localStorage.getItem('galeria_favoritos');
+    return salvos ? JSON.parse(salvos) : [];
+  });
 
   useEffect(() => {
     if (darkMode) {
@@ -23,7 +28,11 @@ function App() {
   }, [darkMode])
 
   useEffect(() => {
-    if (page > 1) {
+    localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
+  }, [favoritos]);
+
+  useEffect(() => {
+    if (page > 1 && search !== 'Favoritos') {
       buscarImagens();
     }
   }, [page])
@@ -38,7 +47,7 @@ function App() {
 
   async function buscarImagens(termoSubstituto?: string) {
     const termoAtual = termoSubstituto || search;
-    if (!termoAtual.trim()) return;
+    if (!termoAtual.trim() || termoAtual === 'Favoritos') return;
 
     setLoading(true);
     try {
@@ -64,12 +73,27 @@ function App() {
   }
 
   function lidarComCategoria(categoria: string) {
-    const termo = categoria === 'Todos' ? 'popular' : categoria;
-
-    setSearch(termo);
-    setImages([]);
     setPage(1);
-    buscarImagens(termo); 
+    setSearch(categoria);
+
+    if (categoria === 'Favoritos') {
+      setImages([]);
+    } else {
+      const termo = categoria === 'Todos' ? 'popular' : categoria;
+      setSearch(termo);
+      setImages([]);
+      buscarImagens(termo);
+    }
+  }
+
+  function alternarFavorito(image: any) {
+    const jaE_Favorito = favoritos.some((fav) => fav.id === image.id);
+
+    if (jaE_Favorito) {
+      setFavoritos(favoritos.filter((fav) => fav.id !== image.id));
+    } else {
+      setFavoritos([...favoritos, image]);
+    }
   }
 
   function carregarMais() {
@@ -108,6 +132,8 @@ function App() {
     700: 2
   }
 
+  const listaDeImagensExibida = search === 'Favoritos' ? favoritos : images;
+
   return (
     <div>
       <button className="botao-dark" onClick={() => setDarkMode(!darkMode)}>
@@ -125,7 +151,8 @@ function App() {
             type="text"
             className='Pesquisa'
             placeholder='Pesquisar imagens... Enter'
-            value={search}
+            value={search === 'Favoritos' ? '' : search} 
+            disabled={search === 'Favoritos'} 
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -141,7 +168,7 @@ function App() {
                 className={`btn-categoria ${search === cat || (cat === 'Todos' && search === 'popular') ? 'active' : ''}`}
                 onClick={() => lidarComCategoria(cat)}
               >
-                {cat}
+                {cat === 'Favoritos' ? <>Salvos</> : cat}
               </button>
             ))}
           </div>
@@ -150,7 +177,7 @@ function App() {
 
       <div className="area-galeria">
         <InfiniteScroll
-          dataLength={images.length}
+          dataLength={listaDeImagensExibida.length}
           next={carregarMais}
           hasMore={false}
           loader={<h2></h2>}
@@ -160,11 +187,14 @@ function App() {
             className="galeria-masonry"
             columnClassName="galeria-masonry-coluna"
           >
-            {loading && images.length === 0
+            {loading && listaDeImagensExibida.length === 0
               ? Array.from({ length: 12 }).map((_, index) => (
-                  <div key={index} className="skeleton"></div>
-                ))
-              : images.map((image) => (
+                <div key={index} className="skeleton"></div>
+              ))
+              : listaDeImagensExibida.map((image) => {
+                const eFavorito = favoritos.some((fav) => fav.id === image.id);
+
+                return (
                   <div key={image.id} className="container-imagem-galeria">
                     <motion.img
                       src={image.urls.small}
@@ -183,6 +213,17 @@ function App() {
                     </div>
 
                     <button
+                      className={`btn-favorito-foto ${eFavorito ? 'favoritado' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        alternarFavorito(image);
+                      }}
+                      title={eFavorito ? "Remover dos Salvos" : "Adicionar aos Salvos"}
+                    >
+                      <i className={`bi ${eFavorito ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+                    </button>
+
+                    <button
                       className="btn-download-foto"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -193,21 +234,32 @@ function App() {
                       <i className="bi bi-download"></i>
                     </button>
                   </div>
-                ))
+                );
+              })
             }
           </Masonry>
 
-          {!loading && images.length === 0 && (
+          {!loading && listaDeImagensExibida.length === 0 && (
             <div className="aviso-galeria-vazia">
-              <i className="bi bi-image" style={{ fontSize: '48px', marginBottom: '10px', display: 'block' }}></i>
-              <h3>Digite um termo e pressione Enter para buscar</h3>
-              <p>Exemplo: Natureza, Arquitetura, Animais...</p>
+              <i className={`bi ${search === 'Favoritos' ? 'bi-heart' : 'bi-image'}`} style={{ fontSize: '48px', marginBottom: '10px', display: 'block' }}></i>
+              <h3>
+                {search === 'Favoritos'
+                  ? 'A sua lista de favoritos está vazia'
+                  : 'Digite um termo e pressione Enter para buscar'
+                }
+              </h3>
+              <p>
+                {search === 'Favoritos'
+                  ? 'Clique no ícone de coração em qualquer imagem para guardá-la aqui.'
+                  : 'Exemplo: Natureza, Arquitetura, Animais...'
+                }
+              </p>
             </div>
           )}
         </InfiniteScroll>
       </div>
 
-      {images.length > 0 && (
+      {listaDeImagensExibida.length > 0 && search !== 'Favoritos' && (
         <div className="container-botao-mais">
           <button className="btn-carregar-mais" onClick={carregarMais} disabled={loading}>
             {loading ? (
